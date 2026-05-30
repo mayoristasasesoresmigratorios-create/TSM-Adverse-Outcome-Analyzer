@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSM Adverse Outcome Analyzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green-dark: #0a3d2e;
+    --green-mid: #0f6e56;
+    --green-base: #1d9e75;
+    --green-light: #9fe1cb;
+    --green-pale: #e1f5ee;
+    --navy: #0d1f2d;
+    --navy-mid: #1a2e3f;
+    --slate: #2c3e50;
+    --gray-800: #2d3748;
+    --gray-600: #4a5568;
+    --gray-400: #718096;
+    --gray-200: #e2e8f0;
+    --gray-100: #f7fafc;
+    --white: #ffffff;
+    --amber-dark: #633806;
+    --amber-mid: #ba7517;
+    --amber-pale: #faeeda;
+    --red-dark: #a32d2d;
+    --red-pale: #fcebeb;
+    --blue-dark: #0c447c;
+    --blue-pale: #e6f1fb;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  body { font-family: var(--font); background: var(--gray-100); color: var(--gray-800); min-height: 100vh; line-height: 1.6; }
+  .site-header { background: var(--navy); border-bottom: 1px solid var(--navy-mid); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark { width: 32px; height: 32px; background: var(--green-base); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .brand-mark svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .brand-name { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--white); letter-spacing: 0.08em; }
+  .brand-sub { font-size: 11px; color: var(--green-light); letter-spacing: 0.04em; }
+  .header-badge { font-size: 11px; background: rgba(255,255,255,0.08); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; padding: 4px 12px; font-family: var(--mono); letter-spacing: 0.05em; }
+  .disclaimer-bar { background: var(--amber-pale); border-bottom: 1px solid #f0c070; padding: 10px 2rem; display: flex; align-items: flex-start; gap: 10px; }
+  .disclaimer-bar svg { width: 16px; height: 16px; stroke: var(--amber-mid); fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 2px; }
+  .disclaimer-text { font-size: 12px; color: var(--amber-dark); line-height: 1.5; }
+  .disclaimer-text strong { font-weight: 600; }
+  .main { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+  .intro { margin-bottom: 2rem; }
+  .intro h1 { font-size: 26px; font-weight: 600; color: var(--navy); margin-bottom: 6px; letter-spacing: -0.02em; }
+  .intro p { font-size: 15px; color: var(--gray-600); }
+  .progress-wrap { margin-bottom: 2rem; }
+  .progress-meta { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .progress-step { font-size: 12px; color: var(--gray-400); font-family: var(--mono); }
+  .progress-pct { font-size: 12px; color: var(--green-base); font-family: var(--mono); font-weight: 500; }
+  .progress-track { height: 3px; background: var(--gray-200); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green-base), var(--green-light)); border-radius: 2px; transition: width 0.4s ease; }
+  .step-header { margin-bottom: 1.25rem; }
+  .step-tag { display: inline-block; font-size: 11px; font-family: var(--mono); font-weight: 500; color: var(--green-mid); background: var(--green-pale); border: 1px solid var(--green-light); border-radius: 4px; padding: 3px 10px; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .step-question { font-size: 20px; font-weight: 600; color: var(--navy); letter-spacing: -0.01em; margin-bottom: 6px; }
+  .step-hint { font-size: 14px; color: var(--gray-600); }
+  .card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+  .options-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+  .opt { background: var(--white); border: 1.5px solid var(--gray-200); border-radius: 8px; padding: 10px 14px; font-size: 14px; color: var(--gray-700); cursor: pointer; text-align: left; transition: all 0.15s; font-family: var(--font); display: flex; align-items: center; gap: 8px; }
+  .opt:hover { border-color: var(--green-base); background: var(--green-pale); }
+  .opt.selected { border-color: var(--green-base); background: var(--green-pale); color: var(--green-dark); font-weight: 500; }
+  .opt .opt-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--gray-300); flex-shrink: 0; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+  .opt.selected .opt-dot { background: var(--green-base); border-color: var(--green-base); }
+  .opt .opt-dot::after { content: ''; width: 5px; height: 5px; background: white; border-radius: 50%; opacity: 0; transition: opacity 0.15s; }
+  .opt.selected .opt-dot::after { opacity: 1; }
+  .multi-note { font-size: 12px; color: var(--gray-400); margin-bottom: 10px; font-style: italic; }
+  textarea { width: 100%; min-height: 100px; padding: 12px 14px; font-size: 14px; border: 1.5px solid var(--gray-200); border-radius: 8px; background: var(--gray-100); color: var(--gray-800); resize: vertical; font-family: var(--font); transition: border-color 0.15s; line-height: 1.6; }
+  textarea:focus { outline: none; border-color: var(--green-base); background: var(--white); }
+  textarea::placeholder { color: var(--gray-400); }
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; }
+  .btn-back { background: none; border: 1px solid var(--gray-200); border-radius: 8px; padding: 10px 18px; font-size: 14px; color: var(--gray-600); cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+  .btn-back:hover { border-color: var(--gray-400); color: var(--gray-800); }
+  .btn-next { background: var(--green-base); border: none; border-radius: 8px; padding: 11px 24px; font-size: 14px; font-weight: 600; color: var(--white); cursor: pointer; font-family: var(--font); transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+  .btn-next:hover { background: var(--green-mid); }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; background: var(--gray-400); }
+  .btn-next svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .loading-wrap { text-align: center; padding: 4rem 1rem; }
+  .spinner { width: 40px; height: 40px; border: 3px solid var(--gray-200); border-top-color: var(--green-base); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .loading-sub { font-size: 14px; color: var(--gray-600); }
+  .result-hero { background: var(--navy); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 14px; }
+  .result-hero-icon { width: 44px; height: 44px; background: rgba(29, 158, 117, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .result-hero-icon svg { width: 22px; height: 22px; stroke: var(--green-light); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .result-hero-title { font-size: 13px; color: var(--green-light); font-family: var(--mono); letter-spacing: 0.06em; margin-bottom: 6px; }
+  .result-hero-text { font-size: 15px; color: rgba(255,255,255,0.9); line-height: 1.6; }
+  .section-title { font-size: 11px; font-family: var(--mono); font-weight: 500; color: var(--gray-400); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-200); }
+  .hyp-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 10px; }
+  .hyp-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+  .hyp-title { font-size: 15px; font-weight: 600; color: var(--navy); }
+  .hyp-body { font-size: 14px; color: var(--gray-600); line-height: 1.6; margin-bottom: 10px; }
+  .conf-wrap { display: flex; align-items: center; gap: 10px; }
+  .conf-label { font-size: 11px; color: var(--gray-400); font-family: var(--mono); }
+  .conf-bar { flex: 1; height: 4px; background: var(--gray-200); border-radius: 2px; overflow: hidden; max-width: 120px; }
+  .conf-fill { height: 100%; border-radius: 2px; }
+  .conf-fill.high { background: var(--green-base); width: 90%; }
+  .conf-fill.med { background: var(--amber-mid); width: 55%; }
+  .conf-fill.low { background: var(--gray-400); width: 25%; }
+  .conf-badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; font-family: var(--mono); white-space: nowrap; flex-shrink: 0; }
+  .conf-badge.high { background: var(--green-pale); color: var(--green-dark); }
+  .conf-badge.med { background: var(--amber-pale); color: var(--amber-dark); }
+  .conf-badge.low { background: var(--gray-200); color: var(--gray-600); }
+  .actions-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
+  .action-item { display: flex; gap: 14px; padding: 12px 1.25rem; border-bottom: 1px solid var(--gray-100); align-items: flex-start; }
+  .action-item:last-child { border-bottom: none; }
+  .action-num { width: 24px; height: 24px; background: var(--green-pale); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--green-mid); flex-shrink: 0; margin-top: 1px; font-family: var(--mono); }
+  .action-text { font-size: 14px; color: var(--gray-800); line-height: 1.6; }
+  .esc-card { border-radius: 10px; padding: 1.25rem; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 1.5rem; }
+  .esc-card.yes { background: var(--red-pale); border: 1.5px solid #f09595; }
+  .esc-card.no { background: var(--green-pale); border: 1.5px solid var(--green-light); }
+  .esc-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .esc-card.yes .esc-icon { background: #f7c1c1; }
+  .esc-card.no .esc-icon { background: var(--green-light); }
+  .esc-icon svg { width: 18px; height: 18px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .esc-card.yes .esc-icon svg { stroke: var(--red-dark); }
+  .esc-card.no .esc-icon svg { stroke: var(--green-dark); }
+  .esc-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .esc-card.yes .esc-title { color: var(--red-dark); }
+  .esc-card.no .esc-title { color: var(--green-dark); }
+  .esc-body { font-size: 13px; color: var(--gray-600); line-height: 1.6; }
+  .restart-wrap { text-align: center; padding: 0.5rem 0 1rem; }
+  .btn-restart { background: none; border: 1.5px solid var(--gray-300); border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: var(--gray-600); cursor: pointer; font-family: var(--font); transition: all 0.15s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-restart:hover { border-color: var(--navy); color: var(--navy); }
+  .btn-restart svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .result-footer { background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 10px; align-items: flex-start; }
+  .result-footer svg { width: 15px; height: 15px; stroke: var(--gray-400); fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 2px; }
+  .result-footer p { font-size: 12px; color: var(--gray-500); line-height: 1.5; }
+  .error-box { background: var(--red-pale); border: 1px solid #f09595; border-radius: 10px; padding: 1.25rem; font-size: 14px; color: var(--red-dark); margin-bottom: 1rem; }
+  .error-box strong { display: block; margin-bottom: 4px; font-size: 15px; }
+  .error-box p { color: #791f1f; font-size: 13px; }
+  .site-footer { text-align: center; padding: 2rem 1rem 1.5rem; font-size: 12px; color: var(--gray-400); border-top: 1px solid var(--gray-200); margin-top: 2rem; }
+  @media (max-width: 600px) { .main { padding: 1.5rem 1rem; } .options-grid { grid-template-columns: 1fr; } .site-header { padding: 0 1rem; } .disclaimer-bar { padding: 10px 1rem; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">TSM ADVERSE OUTCOME ANALYZER</div>
+      <div class="brand-sub">Herramienta de análisis migratorio</div>
+    </div>
+  </div>
+  <div class="header-badge">v1.0 · DEMO</div>
+</header>
+
+<div class="disclaimer-bar">
+  <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <p class="disclaimer-text">
+    <strong>AVISO LEGAL:</strong> Esta herramienta es únicamente para fines informativos y no constituye asesoría legal. Los resultados son orientativos y generados por un sistema experto automatizado. Para cualquier situación migratoria, consulte siempre con un asesor certificado.
+  </p>
+</div>
+
+<main class="main">
+  <div class="intro">
+    <h1>Análisis de resultado adverso migratorio</h1>
+    <p>Responde las siguientes preguntas para identificar posibles causas y próximos pasos.</p>
+  </div>
+  <div id="content"></div>
+</main>
+
+<footer class="site-footer">
+  TSM Adverse Outcome Analyzer &nbsp;·&nbsp; Uso exclusivo para análisis preliminar &nbsp;·&nbsp; No reemplaza asesoría legal profesional
+</footer>
+
+<script>
+const QUESTIONS = [
+  { id: "nacionalidad", tag: "PERFIL DEL SOLICITANTE", q: "¿Cuál es tu nacionalidad?", hint: "País del pasaporte que presentaste", type: "single", opts: ["México","Colombia","Venezuela","Guatemala","Honduras","El Salvador","Cuba","Argentina","Brasil","Perú","Ecuador","Bolivia","Nicaragua","Haití","India","China","Nigeria","Filipinas","Pakistán","Bangladesh","Otro país latinoamericano","Otro país"] },
+  { id: "destino", tag: "DESTINO Y TRÁMITE", q: "¿Cuál es el país de destino o emisor?", hint: "País al que ibas a viajar o que emitió el resultado adverso", type: "single", opts: ["Estados Unidos","Canadá","Reino Unido","España","Francia","Alemania","Italia","Países Bajos","Australia","Nueva Zelanda","Japón","Corea del Sur","México","Otro país europeo Schengen","Otro"] },
+  { id: "tramite", tag: "DESTINO Y TRÁMITE", q: "¿Qué tipo de trámite o documento estabas gestionando?", hint: "Selecciona el que más se aproxime a tu situación", type: "single", opts: ["Visa de turismo / visitante","Visa de trabajo (empleador)","Visa de trabajo independiente","ETA / Autorización Electrónica de Viaje","Visa ESTA (EE.UU.)","Visa eTA (Canadá)","Visa de estudiante","Visa de tránsito","Visa de residencia permanente","Visa de reunificación familiar","Visa humanitaria / asilo","Renovación de visa existente","Extensión de estancia","Cambio de estatus migratorio","Otro"] },
+  { id: "resultado", tag: "RESULTADO ADVERSO", q: "¿Cuál fue el resultado adverso que recibiste?", hint: "Selecciona el que describe exactamente lo que ocurrió", type: "single", opts: ["Negativa inmediata (sin entrevista)","Negativa tras entrevista consular","ETA / Autorización electrónica rechazada","ETA / Autorización electrónica retrasada o pendiente","Boarding denied (denegado al abordar)","Entrevista inesperada en punto de entrada","Secondary inspection (revisión secundaria)","Inadmisibilidad declarada en frontera","Cancelación de visa previamente aprobada","Deportación o devolución forzada","Visa rechazada muy rápidamente (horas o días)","Solicitud sin respuesta tras largo tiempo","Admisión con restricciones o condiciones","Otro resultado adverso"] },
+  { id: "momento", tag: "RESULTADO ADVERSO", q: "¿En qué momento ocurrió el resultado adverso?", hint: "¿Dónde o cuándo se produjo exactamente?", type: "single", opts: ["Antes de viajar (online / consulado)","En el aeropuerto de origen (check-in / abordaje)","En tránsito en aeropuerto intermedio","Al llegar al aeropuerto de destino","En cruce fronterizo terrestre","En puerto marítimo","Por notificación electrónica sin contacto presencial"] },
+  { id: "historial", tag: "HISTORIAL MIGRATORIO", q: "¿Qué elementos hay en tu historial migratorio?", hint: "Puedes seleccionar varias opciones", type: "multi", opts: ["Sin viajes internacionales previos","Viajes previos sin incidencias","Overstay (permanencia más allá del período autorizado)","Deportación o remoción previa","Visa rechazada en este mismo país antes","Visa rechazada en otro país","Solicitud de asilo previa (en cualquier país)","Cambio de estatus migratorio anterior","Entrada rechazada anteriormente","Sin historial de problemas migratorios"] },
+  { id: "documentos", tag: "DOCUMENTACIÓN", q: "¿Qué documentación presentaste o tenías disponible?", hint: "Selecciona todo lo que aplique", type: "multi", opts: ["Pasaporte vigente y en buen estado","Carta de invitación de familiar o amigo","Carta de invitación de empresa","Comprobante de fondos bancarios suficientes","Boleto de regreso confirmado","Seguro de viaje contratado","Carta de trabajo o constancia de empleo","Comprobante de alojamiento (hotel / Airbnb)","Documentos de menores (si viajabas con hijos)","Documentos de dependientes o familia","Documentación incompleta o faltante","Sin documentación de soporte adicional"] },
+  { id: "tiempo", tag: "TIEMPOS Y CONTEXTO", q: "¿Cuánto tiempo llevabas esperando respuesta antes del resultado?", hint: "Tiempo transcurrido desde que aplicaste o solicitaste", type: "single", opts: ["Menos de 24 horas","1 a 3 días","4 a 7 días","1 a 2 semanas","2 a 4 semanas","1 a 3 meses","Más de 3 meses","No aplica (resultado inmediato en frontera)"] },
+  { id: "antecedentes", tag: "ANTECEDENTES PERSONALES", q: "¿Tienes alguno de estos antecedentes personales?", hint: "Puedes seleccionar varios. Esta información es confidencial y solo se usa para el análisis", type: "multi", opts: ["Sin antecedentes relevantes","Antecedentes penales en mi país","Antecedentes penales en el país de destino","Arresto o detención sin condena","Proceso judicial pendiente","Vínculos familiares con personas con problemas migratorios","Empleador o patrocinador con historial problemático","Doble nacionalidad o ciudadanía de otro país","Cambio de nombre o documentos enmendados","Viajes frecuentes a países de alto riesgo migratorio"] },
+  { id: "contexto", tag: "CONTEXTO ADICIONAL", q: "¿Hay algo más que creas que pudo haber influido?", hint: "Describe con tus palabras cualquier detalle relevante...", type: "text" }
+];
+
+let step = 0; let answers = {}; let selections = {};
+function $(id) { return document.getElementById(id); }
+function pct() { return Math.round((step / QUESTIONS.length) * 100); }
+
+function render() {
+  const q = QUESTIONS[step]; const sel = selections[q.id] || []; let input = "";
+  if (q.type === "single" || q.type === "multi") {
+    input = (q.type === "multi" ? `<p class="multi-note">Puedes seleccionar varias opciones</p>` : "") + `<div class="options-grid">` + q.opts.map(o => { const esc = o.replace(/'/g, "\\'"); const on = sel.includes(o) ? " selected" : ""; return `<button class="opt${on}" onclick="pick(this,'${esc}','${q.id}','${q.type}')"><span class="opt-dot"></span>${o}</button>`; }).join("") + `</div>`;
+  } else {
+    input = `<textarea id="txt" placeholder="Escribe aquí cualquier detalle adicional..." onkeyup="answers['${q.id}']=this.value">${answers[q.id]||""}</textarea>`;
+  }
+  $("content").innerHTML = `
+    <div class="progress-wrap"><div class="progress-meta"><span class="progress-step">PASO ${step+1} DE ${QUESTIONS.length}</span><span class="progress-pct">${pct()}%</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct()}%"></div></div></div>
+    <div class="step-header"><div class="step-tag">${q.tag}</div><p class="step-question">${q.q}</p><p class="step-hint">${q.hint}</p></div>
+    <div class="card">${input}</div>
+    <div class="nav-row"><button class="btn-back" onclick="back()" style="${step===0?'visibility:hidden':''}">← Atrás</button><button class="btn-next" onclick="next()">${step===QUESTIONS.length-1?"Generar análisis":"Continuar"}<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button></div>
+  `;
+}
+
+function pick(el, val, qid, mode) {
+  if (!selections[qid]) selections[qid] = [];
+  if (mode === "single") { selections[qid] = [val]; document.querySelectorAll(".opt").forEach(b => b.classList.remove("selected")); el.classList.add("selected"); }
+  else { const i = selections[qid].indexOf(val); if (i > -1) { selections[qid].splice(i,1); el.classList.remove("selected"); } else { selections[qid].push(val); el.classList.add("selected"); } }
+  answers[qid] = selections[qid].join(", ");
+}
+function back() { if (step > 0) { step--; render(); } }
+function restart() { step = 0; answers = {}; selections = {}; render(); }
+
+function next() {
+  const q = QUESTIONS[step]; if (q.type === "text") { const el = $("txt"); if (el) answers[q.id] = el.value; }
+  step++; if (step < QUESTIONS.length) { render(); } else { analyze(); }
+}
+
+function analyze() {
+  $("content").innerHTML = `<div class="loading-wrap"><div class="spinner"></div><p class="loading-title">Analizando tu caso...</p><p class="loading-sub">Evaluando patrones migratorios estructurales.</p></div>`;
+  
+  setTimeout(() => {
+    const a = answers;
+    let hipotesis = [];
+    let acciones = [
+      "Realizar una auditoría completa de la documentación presentada originalmente.",
+      "Verificar consistencia de declaraciones en bases de datos consulares externas.",
+      "Solicitar acceso a registros migratorios oficiales si es admisible.",
+      "Evitar nuevos intentos de aplicación sin subsanar la causa raíz del outcome adverso.",
+      "Establecer una ruta estratégica validada técnicamente antes de cualquier re-aplicación."
+    ];
+    let escalamiento = { necesario: false, nivel: "opcional", razon: "El caso puede ser evaluado de forma preliminar mediante la revisión estándar de consistencia documental." };
+
+    if ((a.resultado || "").toLowerCase().includes("eta") || (a.resultado || "").toLowerCase().includes("autorización electrónica")) {
+      hipotesis.push({
+        titulo: "Inconsistencia en Criterios de Elegibilidad Automatizada",
+        descripcion: "El sistema de procesamiento electrónico detectó una falta de alineación con las condiciones base del programa simplificado de viaje (vínculos socioeconómicos o alertas en bases de datos).",
+        confianza: "alta"
+      });
+      escalamiento = { necesario: true, nivel: "urgente", razon: "Los rechazos automatizados en plataformas electrónicas suelen requerir un análisis técnico detallado para evitar bloqueos permanentes en el sistema." };
+    }
+
+    if ((a.historial || "").toLowerCase().includes("overstay") || (a.historial || "").toLowerCase().includes("rechazada") || (a.historial || "").toLowerCase().includes("negativa")) {
+      hipotesis.push({
+        titulo: "Alerta Estructural por Historial Migratorio Previo",
+        descripcion: "Presencia de registros históricos indexados que activan alertas de riesgo de permanencia no autorizada en las evaluaciones automatizadas de los oficiales consulares.",
+        confianza: "alta"
+      });
+      escalamiento = { necesario: true, nivel: "recomendado", razon: "El historial adverso acumulado incrementa la carga de la prueba para el aplicante, requiriendo un enfoque altamente especializado." };
+    }
+
+    if (hipotesis.length === 0) {
+      hipotesis.push({
+        titulo: "Evaluación General de Riesgo Consular",
+        descripcion: "Análisis basado en variables estándar de arraigo, solvencia o consistencia general del propósito de viaje declarado frente al perfil del solicitante.",
+        confianza: "media"
+      });
+    }
+
+    const resultado = {
+      resumen: "Se identificaron factores críticos de riesgo que influyen directamente en la determinación del outcome adverso reportado.",
+      hipotesis,
+      acciones,
+      escalamiento
+    };
+
+    renderResult(resultado);
+  }, 1500);
+}
+
+function confClass(c) { return c === "alta" ? "high" : (c === "media" ? "med" : "low"); }
+function confLabel(c) { return c === "alta" ? "Confianza alta" : (c === "media" ? "Confianza media" : "Confianza baja"); }
+
+function renderResult(d) {
+  const escData = d.escalamiento || {}; const escNec = escData.necesario; const escLevel = escData.nivel || "opcional";
+  let escTitle = "No se requiere escalamiento inmediato";
+  if (escNec && escLevel === "urgente") escTitle = "Escalamiento urgente recomendado";
+  else if (escNec) escTitle = "Se recomienda consultar con un especialista";
+
+  const hypsHtml = (d.hipotesis || []).map(h => `<div class="hyp-card"><div class="hyp-top"><p class="hyp-title">${h.titulo}</p><span class="conf-badge ${confClass(h.confianza)}">${confLabel(h.confianza)}</span></div><p class="hyp-body">${h.descripcion}</p><div class="conf-wrap"><span class="conf-label">CONFIANZA</span><div class="conf-bar"><div class="conf-fill ${confClass(h.confianza)}"></div></div></div></div>`).join("");
+  const actionsHtml = (d.acciones || []).map((a, i) => `<div class="action-item"><div class="action-num">${i + 1}</div><p class="action-text">${a}</p></div>`).join("");
+
+  $("content").innerHTML = `
+    <div class="progress-wrap"><div class="progress-meta"><span class="progress-step">ANÁLISIS COMPLETADO</span><span class="progress-pct">100%</span></div><div class="progress-track"><div class="progress-fill" style="width:100%"></div></div></div>
+    <div class="result-hero"><div class="result-hero-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><p class="result-hero-title">RESUMEN DEL CASO</p><p class="result-hero-text">${d.resumen}</p></div></div>
+    <p class="section-title">HIPÓTESIS PROBABLES</p>${hypsHtml}
+    <p class="section-title" style="margin-top:1.5rem">ACCIONES SUGERIDAS</p><div class="actions-card">${actionsHtml}</div>
+    <p class="section-title">NECESIDAD DE ESCALAMIENTO</p>
+    <div class="esc-card ${escNec ? 'yes' : 'no'}"><div class="esc-icon">${escNec ? `<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>` : `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`}</div><div><p class="esc-title">${escTitle}</p><p class="esc-body">${escData.razon}</p></div></div>
+    <div class="result-footer"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Este análisis automatizado es de carácter meramente orientativo e informativo. No constituye asesoría legal ni vinculante. Toda estrategia definitiva debe ser validada por un profesional competente antes de su ejecución.</p></div>
+    <div class="restart-wrap"><button class="btn-restart" onclick="restart()"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>Iniciar nuevo análisis</button></div>
+  `;
+}
+render();
+</script>
+</body>
+</html>
